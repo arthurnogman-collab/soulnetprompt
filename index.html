@@ -33,7 +33,7 @@
         background: rgba(30,30,40,0.75);
         box-shadow: 0 8px 28px rgba(0,0,0,0.35);
       }
-      .btn-open { display:inline-block;margin-top:14px;padding:12px 16px;border-radius:12px;background:#ffffff;color:#111;text-decoration:none;font-weight:800; }
+      .btn-open { display:none; }
       textarea { position: absolute; left: -9999px; top: -9999px; height: 0; width: 0; opacity: 0; }
     </style>
     <script>
@@ -80,14 +80,11 @@ OUTPUT FORMAT — SoulNet Persona Schema v2 (20 layers)
         const txt = PROMPT;
         try {
           await navigator.clipboard.writeText(txt);
-          showMsg('✅ Copied to clipboard. You can paste it into ChatGPT.');
         } catch (e) {
-          // Hidden textarea fallback for some browsers
           const ta = document.getElementById('prompt');
           ta.value = PROMPT;
           ta.select();
-          try { document.execCommand('copy'); showMsg('✅ Copied to clipboard.'); }
-          catch (_) { showMsg('⚠️ Copy failed. Please long-press and copy manually.'); }
+          try { document.execCommand('copy'); } catch (_) {}
         }
       }
       window.addEventListener('DOMContentLoaded', () => {
@@ -105,14 +102,7 @@ OUTPUT FORMAT — SoulNet Persona Schema v2 (20 layers)
           // Optional: hide after a short delay
           // setTimeout(() => overlay.classList.remove('show'), 3500);
         });
-        // Open ChatGPT, send data back, then close mini app
-        openBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          try { await copyNow(); } catch {}
-          try { window.open('https://chat.openai.com/', '_blank'); } catch {}
-          try { if (window.Telegram && Telegram.WebApp) Telegram.WebApp.sendData('open'); } catch {}
-          setTimeout(() => { try { if (window.Telegram && Telegram.WebApp) Telegram.WebApp.close(); } catch {} }, 600);
-        });
+        // Removed Open ChatGPT per request
       });
     </script>
   </head>
