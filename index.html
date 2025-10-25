@@ -8,31 +8,63 @@
       :root { color-scheme: dark; }
       body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: #0b0b12; color: #eaeaf2; }
       .wrap { max-width: 900px; padding: 16px; margin: 0 auto; }
-      h1 { font-size: 18px; margin: 12px 0 8px; }
-      textarea { width: 100%; min-height: 55vh; background: #121225; color: #eaeaf2; border: 1px solid #29294a; border-radius: 10px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; line-height: 1.45; }
-      .row { display: flex; gap: 12px; margin-top: 12px; }
-      button { flex: 1; border: none; padding: 12px 14px; border-radius: 10px; background: #6c5ce7; color: #fff; font-weight: 600; cursor: pointer; }
-      button.secondary { background: #23233f; color: #c9c9e6; }
-      .msg { margin-top: 10px; font-size: 13px; opacity: .9; }
+      button { width: 100%; border: none; padding: 14px 16px; border-radius: 10px; background: #3a3a42; color: #eaeaf2; font-weight: 600; cursor: pointer; }
+      .msg { margin-top: 12px; font-size: 14px; opacity: .9; }
+      textarea { position: absolute; left: -9999px; top: -9999px; height: 0; width: 0; opacity: 0; }
     </style>
     <script>
-      function getParam(name) {
-        const url = new URL(window.location.href);
-        return url.searchParams.get(name) || "";
-      }
+      const PROMPT = `You are an AI relationship psychologist and data architect inside the SoulNet network.  
+Your task is to generate a complete numeric personality & life profile JSON describing the user.  
+This data will later be normalized & compared for compatibility inside SoulNet.  
+Do NOT balance, idealize, or judge — only describe the person precisely.
+
+RULES  
+1. Infer everything from tone, language, and reasoning — no follow-ups.  
+2. All measurable traits use 1–100 integers (50 = avg, 15 ≈ 1 SD).  
+3. Output only one valid JSON object in triple backticks. No text outside it.  
+4. Include all keys, even if null or empty arrays.  
+5. Don’t compute compatibility — SoulNet handles that.  
+
+OUTPUT — SoulNet Persona Schema v2
+
+{
+ "core_personality": {"openness":null,"conscientiousness":null,"extraversion":null,"agreeableness":null,"neuroticism":null,"novelty_seeking":null,"emotional_stability":null,"self_reflection_depth":null,"spontaneity":null,"adaptability":null},
+ "emotional_world":{"emotional_intensity":null,"empathy":null,"forgiveness":null,"attachment_security":null,"jealousy_index":null,"emotional_expression":null,"patience":null,"nurturing_drive":null,"emotional_resilience":null,"humor_in_conflict":null},
+ "communication_social":{"verbal_clarity":null,"listening_skill":null,"conflict_style":null,"directness":null,"diplomatic_filter":null,"social_energy":null,"flirtation_finesse":null,"boundaries_awareness":null,"humor_style":null,"authenticity_level":null},
+ "cognitive_intellect":{"analytical_intelligence":null,"creative_intelligence":null,"practical_intelligence":null,"philosophical_depth":null,"curiosity_intensity":null,"learning_speed":null,"focus_sustainability":null,"intellectual_humility":null,"humor_intellect_ratio":null},
+ "values_motivation":{"freedom_value":null,"loyalty_value":null,"honesty_value":null,"compassion_value":null,"ambition_drive":null,"spiritual_orientation":null,"family_orientation":null,"exploration_drive":null,"justice_sensitivity":null},
+ "lifestyle_energy":{"daily_structure":null,"sleep_regularness":null,"adventure_drive":null,"work_life_balance":null,"digital_dependency":null,"aesthetic_sense":null,"nature_affinity":null,"music_sensitivity":null,"pace_preference":null},
+ "physical_charisma":{"physical_presence":null,"height_projection":null,"fitness_energy":null,"style_expression":null,"sexual_charisma":null,"confidence_projection":null,"dominance_warmth_balance":null,"body_awareness":null,"self_image_stability":null},
+ "wealth_autonomy":{"resource_autonomy":null,"temporal_freedom":null,"stability_horizon":null,"minimalism_vs_indulgence":null,"risk_comfort_index":null,"network_leverage":null,"liquidity_awareness":null,"geographic_mobility":null,"ownership_ratio":null,"crisis_cushion":null,"wealth_freedom_index":null},
+ "attraction_sexuality":{"masculine_attraction_intensity":null,"feminine_attraction_intensity":null,"fluidity_openness":null,"sexual_curiosity_index":null,"romantic_orientation_depth":null,"flirtation_energy":null,"sensual_sensitivity":null,"sexual_confidence":null,"intimacy_vulnerability":null},
+ "relationship_dynamics":{"commitment_readiness":null,"independence_need":null,"dominance_tendency":null,"harmony_preference":null,"communication_sync":null,"affection_frequency":null,"repair_skill":null,"trust_baseline":null,"love_language_touch":null,"love_language_words":null,"love_language_gifts":null,"love_language_service":null,"love_language_time":null},
+ "creativity_aesthetic":{"artistic_drive":null,"musicality":null,"visual_intuition":null,"storytelling_skill":null,"emotional_symbolism":null,"originality_index":null,"taste_consistency":null},
+ "health_vitality":{"physical_activity_level":null,"diet_consciousness":null,"body_mind_sync":null,"stress_management":null,"longevity_orientation":null,"substance_tendency":null,"sleep_quality":null},
+ "meta_behavioral":{"social_platform_behavior":null,"response_latency":null,"self_disclosure_level":null,"curiosity_toward_partner":null,"humor_frequency":null,"attention_depth":null,"emotional_mirroring":null,"unpredictability_index":null},
+ "interests_tags":{"profession_tags":[],"creative_tags":[],"intellectual_tags":[],"physical_tags":[],"cultural_tags":[],"aesthetic_tags":[],"spiritual_tags":[],"culinary_tags":[],"entertainment_tags":[],"technological_tags":[],"social_values_tags":[],"learning_tags":[],"environment_tags":[],"relationship_tags":[]},
+ "temporal_rhythm":{"chronotype":null,"energy_peak_times":[],"sleep_variability":null,"time_awareness_index":null},
+ "decision_cognition":{"intuition_vs_analysis_ratio":null,"long_term_planning_depth":null,"tolerance_for_uncertainty":null,"moral_consistency_index":null},
+ "conflict_recovery":{"reaction_intensity_in_conflict":null,"repair_initiation_speed":null,"ego_resistance":null,"grudge_duration":null},
+ "narrative_arc":{"life_stage_orientation":null,"identity_experimentation_level":null,"legacy_motivation":null,"personal_transformation_index":null},
+ "environment_sensory":{"temperature_preference":null,"soundscape_tolerance":null,"crowd_energy_tolerance":null,"sensory_sensitivity":null},
+ "demographic_knowledge":{"age":null,"gender":null,"knowledge_depth_index":null}
+}`;
       async function copyNow() {
-        const txt = document.getElementById('prompt').value;
+        const txt = PROMPT;
         try {
           await navigator.clipboard.writeText(txt);
           showMsg('✅ Copied to clipboard. You can paste it into ChatGPT.');
         } catch (e) {
-          showMsg('⚠️ Copy failed. Please select the text and copy manually.');
+          // Hidden textarea fallback for some browsers
+          const ta = document.getElementById('prompt');
+          ta.value = PROMPT;
+          ta.select();
+          try { document.execCommand('copy'); showMsg('✅ Copied to clipboard.'); }
+          catch (_) { showMsg('⚠️ Copy failed. Please long-press and copy manually.'); }
         }
       }
       function showMsg(t) { document.getElementById('msg').textContent = t; }
       window.addEventListener('DOMContentLoaded', () => {
-        const dec = decodeURIComponent(getParam('t'));
-        document.getElementById('prompt').value = dec;
         // Auto copy on load for ultra-fast UX
         copyNow();
       });
@@ -40,12 +72,8 @@
   </head>
   <body>
     <div class="wrap">
-      <h1>Copy the prompt</h1>
+      <button onclick="copyNow()">Get prompt</button>
       <textarea id="prompt" readonly></textarea>
-      <div class="row">
-        <button onclick="copyNow()">Copy again</button>
-        <button class="secondary" onclick="window.close()">Close</button>
-      </div>
       <div id="msg" class="msg"></div>
     </div>
   </body>
