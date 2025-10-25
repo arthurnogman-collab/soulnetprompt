@@ -8,7 +8,14 @@
       :root { color-scheme: dark; }
       body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: #0b0b12; color: #eaeaf2; }
       .wrap { max-width: 900px; padding: 16px; margin: 0 auto; }
-      video { width: 100%; border-radius: 14px; display: block; background: #0b0b12; }
+      video {
+        width: 100%;
+        border-radius: 14px;
+        display: block;
+        background: #000; /* prevents translucent black */
+        aspect-ratio: 16 / 9; /* reserves layout so poster shows immediately */
+        object-fit: cover;
+      }
       .msg { margin-top: 12px; font-size: 14px; opacity: .95; }
       textarea { position: absolute; left: -9999px; top: -9999px; height: 0; width: 0; opacity: 0; }
     </style>
@@ -80,7 +87,13 @@ OUTPUT FORMAT — SoulNet Persona Schema v2 (20 layers)
   </head>
   <body>
     <div class="wrap">
-      <video id="vid" src="hamster.mp4" preload="metadata" playsinline muted controlslist="nodownload noplaybackrate" poster="" ></video>
+      <video id="vid"
+             src="hamster.mp4"
+             preload="metadata"
+             playsinline webkit-playsinline
+             muted
+             controlslist="nodownload noplaybackrate"
+             poster="hamster.jpg"></video>
       <textarea id="prompt" readonly></textarea>
       <div id="msg" class="msg"></div>
     </div>
