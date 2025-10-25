@@ -12,9 +12,30 @@
         width: 100%;
         border-radius: 14px;
         display: block;
-        background: #000; /* prevents translucent black */
-        aspect-ratio: 16 / 9; /* reserves layout so poster shows immediately */
-        object-fit: cover;
+        background: #000;
+        aspect-ratio: 1 / 1; /* square frame as requested */
+        object-fit: cover;   /* crop to square if video is not square */
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.55);
+        z-index: 10;
+        text-align: center;
+      }
+      .overlay.show { display: flex; }
+      .overlay .overlay-content {
+        font-size: 22px;
+        line-height: 1.4;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 18px 22px;
+        border-radius: 12px;
+        background: rgba(30,30,40,0.75);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.35);
       }
       .msg { margin-top: 12px; font-size: 14px; opacity: .95; }
       textarea { position: absolute; left: -9999px; top: -9999px; height: 0; width: 0; opacity: 0; }
@@ -75,13 +96,20 @@ OUTPUT FORMAT — SoulNet Persona Schema v2 (20 layers)
       }
       function showMsg(t) { document.getElementById('msg').textContent = t; }
       window.addEventListener('DOMContentLoaded', () => {
-        // Show poster frame; copy when the user taps to play
         const vid = document.getElementById('vid');
+        const overlay = document.getElementById('overlay');
+        // User initiates playback with a tap; sound should play (muted removed)
         vid.addEventListener('click', async () => {
-          try { await copyNow(); } catch {}
           try { await vid.play(); } catch {}
-          showMsg('⚡️ Prompt copied! Paste it into ChatGPT to begin your scan.');
         }, { once: true });
+        // After the video finishes, copy and show centered message
+        vid.addEventListener('ended', async () => {
+          try { await copyNow(); } catch {}
+          overlay.classList.add('show');
+          showMsg('⚡️ Prompt copied!\nPaste it into ChatGPT to begin your scan.');
+          // Optional: hide after a short delay
+          // setTimeout(() => overlay.classList.remove('show'), 3500);
+        });
       });
     </script>
   </head>
@@ -91,9 +119,9 @@ OUTPUT FORMAT — SoulNet Persona Schema v2 (20 layers)
              src="hamster.mp4"
              preload="metadata"
              playsinline webkit-playsinline
-             muted
              controlslist="nodownload noplaybackrate"
              poster="hamster.jpg"></video>
+      <div id="overlay" class="overlay"><div class="overlay-content">⚡️ Prompt copied!<br/>Paste it into ChatGPT to begin your scan.</div></div>
       <textarea id="prompt" readonly></textarea>
       <div id="msg" class="msg"></div>
     </div>
